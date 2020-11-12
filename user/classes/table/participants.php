@@ -377,20 +377,20 @@ class participants extends \table_sql implements dynamic_table {
         return $enrolstatusoutput;
     }
 
-    public function col_container($data) {
-        global $DB;
-        $link = '';
+    // public function col_container($data) {
+    //     global $DB;
+    //     $link = '';
 
-        $container=$DB->get_record_sql("SELECT * FROM plass_container WHERE userid=$data->id");
-	$url = new moodle_url('http://210.94.194.63:5111/' . $container->containerapi);
+    //     $container=$DB->get_record_sql("SELECT * FROM plass_container WHERE userid=$data->id");
+	// $url = new moodle_url('http://210.94.194.63:5111/' . $container->containerapi);
 
-	if($container)
-        	$link = '<a href="' . $url . '" class="btn btn-primary" target="_blank">' . get_string('container', 'enrol') . '</a>';
-	else
-		$link = get_string('nocontainer','enrol');
+	// if($container)
+    //     	$link = '<a href="' . $url . '" class="btn btn-primary" target="_blank">' . get_string('container', 'enrol') . '</a>';
+	// else
+	// 	$link = get_string('nocontainer','enrol');
 
-        return $link;
-    }
+    //     return $link;
+    // }
 
     /**
      * This function is used for the extra user fields.

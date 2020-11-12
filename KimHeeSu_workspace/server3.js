@@ -12,7 +12,7 @@ app.post('/fileupload',function(req,res){
         //field값(필드 매개변수) 받는 부분
         form.parse(req, function(err, fields, files){
             var oldpath = files.filetoupload.path;
-            var newpath = 'C:/xampp/htdocs/upload/' + files.filetoupload.name;
+            var newpath = './upload/' + files.filetoupload.name;
             fs.rename(oldpath, newpath, function(err){
                 if(err) throw err;
                 fs.readFile('./uploadedpage.html','UTF-8',
@@ -31,7 +31,7 @@ app.get('/fileupload',function(req,res){
   //field값(필드 매개변수) 받는 부분
   form.parse(req, function(err, fields, files){
       var oldpath = files.filetoupload.path;
-      var newpath = 'C:/xampp/htdocs/upload/' + files.filetoupload.name;
+      var newpath = './upload/' + files.filetoupload.name;
       fs.rename(oldpath, newpath, function(err){
           if(err) throw err;
           fs.readFile('./uploadedpage.html','UTF-8',

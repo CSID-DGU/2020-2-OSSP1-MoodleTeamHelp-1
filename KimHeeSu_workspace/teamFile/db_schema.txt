@@ -1,0 +1,31 @@
+CREATE TABLE fileLocation
+( 
+    number int primary key, 
+    directory varchar(30), 
+    fileName varchar(30)
+);
+
+
+insert into fileLocation (number, directory, fileName) VALUE
+(
+    1,
+    "C:\Users\wlska\Documents\junior_2semester\공소\teamFile",
+    "testFile"
+);
+
+CREATE DATABASE db_test;
+
+CREATE TABLE BOARD(
+    ID VARCHAR(50),
+    TITLE VARCHAR(200),
+    CONTENT VARCHAR(1000),
+    WDATE DATE
+);
+
+insert into mdl_groups(id, courseid, idnumber, name, description, descriptionformat, enrolmentkey, picture, hidepicture, timecreated, timemodified)
+(
+    1,
+    1,
+    "1",
+    "group1"
+);
