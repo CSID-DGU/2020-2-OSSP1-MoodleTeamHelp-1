@@ -5,11 +5,17 @@ var url = require('url');
 var express = require('express');
 var app = express();
 const bodyParser = require('body-parser')
+const mysql      = require('mysql');
+const dbconfig   = require('./config/database.js');
+const connection = mysql.createConnection(dbconfig);
+
 app.use(bodyParser.urlencoded({extended:false}))
 
 app.set('port', process.env.PORT || 8888);
 
 app.use(express.static('public'));
+
+
 
 app.post('/fileupload/:id', function (req, res) {
     let path = req.params.id;
@@ -21,7 +27,10 @@ app.post('/fileupload/:id', function (req, res) {
         var newpath = fpath + '/' + files.filetoupload.name;
         fs.rename(oldpath, newpath, function (err) {
             if (err){
-                res.send('<script type="text/javascript">alert("파일을 선택해 주세요");</script>');
+                res.send(`<script type="text/javascript">
+                alert("파일을 선택해 주세요");
+                history.back();
+                </script>`);
                 res.end();
             }
             else{
@@ -38,7 +47,10 @@ app.post('/addpart/',(req,res) => {
     let addpart='./upload/'+part;
     fs.mkdir(addpart,err=>{
         if(err && err.cod != 'EEXIST'){
-            res.send('<script type="text/javascript">alert("파트가 존재하거나 입력되지 않았습니다");</script>');
+            res.send(`<script type="text/javascript">
+            alert("파트가 존재하거나 입력되지 않았습니다");
+            history.back();
+            </script>`);
             res.end();
         }
         else{
@@ -56,7 +68,10 @@ app.post('/deletepart/:id', function (req, res) {
 
     fs.rmdir(fpath,err=>{
         if(err && err.cod != 'EEXIST') {
-            res.send('<script type="text/javascript">alert("파일이 있어 파트삭제 불가능");</script>');
+            res.send(`<script type="text/javascript">
+            alert("파일이 있어 파트삭제 불가능");
+            history.back();
+            </script>`);
             res.end();
         }
         else{
@@ -89,50 +104,64 @@ app.get('/download/:id', function (req, res) {
 });
 
 app.get('/', function (req, res) {
+    //res.send(db);
 
     function getFiles(dir, files_) {
         files_ = files_ || [];
         var files = fs.readdirSync(dir);
-        files_.push('<ul>')
+        
         //var p = 1;
         for (var i in files) {
             var name = dir + '/' + files[i];
             if (fs.statSync(name).isDirectory()) {
                 let uname = name.replace(/\//g, ',');
-                files_.push(`<div> <h2>${files[i]}</h2>
+                files_.push('<ul>')
+                files_.push(`<div style="border:1px solid orange; width:13%;"> 
                 <form action="deletepart/${uname}" method="post">
-                    <input type="submit" value="part 삭제">
+                <h2 class="titlefont">
+                    <input type="submit" value="x">
+                    ${files[i]}
+                </h2>
                 </form>
                 `);
-                //p = p + 1;
-                getFiles(name, files_);
-
                 files_.push(`
-                <div class="origin">
-                <h2>${title}</h2>
+                <div class="origin" style="border:1px solid orange">
                 <form action="fileupload/${uname}" method="post"  enctype="multipart/form-data">
-                <input type="file" name="filetoupload">
+                <input type="file" name="filetoupload" style="width:73%;">
                 <input type="submit">
                 </form>
                 </div>
                 `)
+                getFiles(name, files_);
 
+               
                 files_.push('</div>');
+                files_.push(`
+                <div class="link">
+                <hr color="orange" size="8" align="center">
+                </div>
+                `)
+                  files_.push('</ul>')
             } else {
                 var spliturl = name.split("/");
                 var fname = spliturl[spliturl.length - 1];
                 let downloadUrl = spliturl.slice(spliturl.indexOf("upload") + 1).join(",");
                 let uname = name.replace(/\//g, ',');
-                files_.push(`<li><a href="/download/${downloadUrl}">${fname}</a>
+                files_.push(`
+                <div class="vertical">
+                <p></p>
+                </div>
+                <div class="origin" style="border:1px solid orange; width:100%;">
                 <form action="delete/${uname}" method="post">
-                    <input type="submit" value="delete">
+                <input type="submit" value="x" >
+                <a href="/download/${downloadUrl}" class=listfont>${fname}</a>
                 </form>
-                </li>`)
+                </div>
+                `)
             }
         }
 
-
-        files_.push('</ul>')
+      
         files_ = files_.join('');
         return files_;
     }
@@ -146,8 +175,38 @@ app.get('/', function (req, res) {
     <title></title>
     <style>
         div{float:left;}
+        .link{
+            float:left;
+            position: relative;
+            bottom:-15px;
+            width:3%;
+        }
+        .titlefont{
+            font-size:90%;
+        }
+        .listfont{
+            font-size:70%;
+        }
+        .check{
+            left: 1px;
+        }
         .origin{
             clear:both;
+        }
+        .right{
+            float:right;
+        }
+        .vertical{
+           background-color:yellow; 
+           width: 6%;
+           position: relative;
+           left: 47%;
+        }
+        .horizontal{
+            float:left;c
+            background-color:orange;
+            widht:100%;
+            height:100%;
         }
     </style>
     </head>
@@ -159,6 +218,10 @@ app.get('/', function (req, res) {
         <input type="submit" value="파트추가">
         </form>
     </div>
+    
+    <div class=origin>
+        ${db}
+    </div>
     </body>
     </html>
     `;
@@ -167,5 +230,15 @@ app.get('/', function (req, res) {
 
 });
 
-var server = http.createServer(app).listen(app.get('port'), function () { });
+var db=[];
+
+var server = http.createServer(app).listen(app.get('port'), function () {
+    connection.query('SELECT firstname from mdl_user', (error, rows) => {
+        if (error) throw error;
+        for (var i in rows){
+            db.push(rows[i].firstname);
+        }
+      });
+ });
+
 
