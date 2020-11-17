@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "formidable": "^1.2.2",
     "mariadb": "^2.5.1",
     "mysql": "^2.18.1",
     "node": "^15.2.0"
