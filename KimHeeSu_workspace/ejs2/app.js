@@ -35,15 +35,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:false}))
 
 app.get('/', function(req,res){
-    //const body = req.body
-    res.send("root")
-})
-
-
-let comment="comment 입력하세요"
-
-app.get('/team', function(req,res){
-    let sql = `select mdl_groups.name,groupid, firstname, lastname
+      let sql = `select mdl_groups.name,groupid, firstname, lastname
                from mdl_groups_members, mdl_user,mdl_groups
                where mdl_groups_members.userid = mdl_user.id and 
                      mdl_groups_members.groupid=1 and 
@@ -59,23 +51,40 @@ app.get('/team', function(req,res){
                 names.push(element.firstname+element.lastname)
             })
             console.log(rows[0].name)
-  
-            req.session.isLogined = true
-            req.session.save(function(){
-                res.render('team.ejs', {memberName:names,groupName:rows[0].name,comment:comment})
-            })
             
+            req.session.isLogined=true
+            req.session.names = names
+            req.session.groupName = rows[0].name
+            req.session.save(function(){
+                res.redirect('/home')
+            })
         }
     })
-  
-
+    
 })
 
 
 
-app.post('/store', function(req, res){
-    const body = req.body
-    comment = body.memo
+app.get('/teamPage', function(req,res){
+    res.render('teamPage.ejs', {memberName:req.session.names, groupName:req.session.groupName})
 })
 
-app.listen(3200, ()=>console.log('Sever is running on port 3200...'))
+
+
+app.get('/home', function(req, res){
+    console.log(req.session.isLogined)
+    res.render('home.ejs')
+})
+
+
+
+app.get('/profilePage', function(req, res){
+    res.render('profilePage.ejs')
+})
+
+let comment = "hello"
+app.get('/workList', function(req, res){
+    res.render('workList.ejs', {memberName:req.session.names, groupName:req.session.groupName,comment:comment})      
+})
+
+app.listen(3300, ()=>console.log('Sever is running on port 3300...'))
