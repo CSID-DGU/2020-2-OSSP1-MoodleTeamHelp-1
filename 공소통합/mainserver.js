@@ -38,7 +38,7 @@ app.set("view engine", "ejs");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.set("port", process.env.PORT || 8888);
+app.set("port", process.env.PORT || 3200);
 
 app.use(express.static("public"));
 
