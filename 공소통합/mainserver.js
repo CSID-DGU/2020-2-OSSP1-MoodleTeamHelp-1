@@ -45,7 +45,7 @@ app.use(express.static("public"));
 app.use("/myrouter", myRouter);
 
 app.get("/", function (req, res) {
-  let sql = `select mdl_groups.name,groupid, firstname, lastname
+  let sql = `select mdl_groups.name,groupid, firstname, lastname, mdl_user.id
                from mdl_groups_members, mdl_user,mdl_groups
                where mdl_groups_members.userid = mdl_user.id and 
                      mdl_groups_members.groupid=1 and 
