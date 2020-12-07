@@ -2304,3 +2304,4 @@ $string['userfilterplaceholder'] = 'Search keyword or select filter';
 
 $string['projectmanager'] = 'Project Manager';
 $string['problembank'] = 'Problem Bank';
+$string['teamhelp'] = 'Team Help';

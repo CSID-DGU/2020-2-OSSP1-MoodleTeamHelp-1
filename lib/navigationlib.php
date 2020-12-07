@@ -2908,7 +2908,7 @@ class global_navigation extends navigation_node {
             $node = $coursenode->add(get_string('calendar', 'calendar'), $calendarurl,
                 self::TYPE_CUSTOM, null, 'calendar', new pix_icon('i/calendar', ''));
             $node->showinflatnavigation = true;
-	}
+	    }
 
 	if($navoptions->project) {
 		$token = hash('sha256', $USER->timecreated);
@@ -2918,7 +2918,20 @@ class global_navigation extends navigation_node {
 	    $node = $coursenode->add(get_string('projectmanager'), $projecturl,
 		self::TYPE_CUSTOM, null, 'projectmanager', new pix_icon('i/privatefiles', ''), '_blank');
 	    $node->showinflatnavigation = true;
+    }
+
+    if($navoptions->teamHelp) {
+		$token = hash('sha256', $USER->timecreated);
+		//$token = base64_encode($token);
+	    //$params = array('id' => $USER->id, 'token' => $token);
+        $params = array('id' => $USER->id);
+        $projecturl = new moodle_url('http://localhost:3300', $params);
+
+	    $node = $coursenode->add(get_string('teamhelp'), $projecturl,
+		self::TYPE_CUSTOM, null, 'teamhelp', new pix_icon('i/privatefiles', ''), '_blank');
+	    $node->showinflatnavigation = true;
 	}
+
 
 	if($navoptions->problembank) {
         $params = array('id' => $USER->id);

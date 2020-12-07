@@ -3974,6 +3974,7 @@ function course_get_user_navigation_options($context, $course = null) {
 	$options->calendar = $isloggedin;
 	$options->project = $isloggedin;
 	$options->problembank = $isloggedin;
+	$options->teamHelp = $isloggedin;
     } else {
         // We are in a course, so make sure we use the proper capability (course:viewparticipants).
         $options->participants = course_can_view_participants($context);
