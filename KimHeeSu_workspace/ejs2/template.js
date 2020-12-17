@@ -1,7 +1,7 @@
 var style = require("./style.js");
 
 module.exports = {
-  HTML: function (course, getfiles, db, group) {
+  HTML: function (course, getfiles, db, group, username,coursename) {
     // return `
     // <!doctype html>
     // <head>
@@ -74,8 +74,12 @@ ${style.css()}
     }
 
     .silex-id-1605169710227-28 {width: 200px; min-height: 70px; position: absolute; top: 194px; left: 15px; background-color: transparent;}
+    .silex-id-1605169710227-29 {width: 500px; height: 500px; position: absolute; top: 00px; left: 94%;}
   </style>
   <body>
+    <div data-silex-type="image-element" class="editable-style image-element silex-id-1605169710227-29 page-main paged-element style-all-style1" data-silex-id="silex-id-1605169710227-29" style="" data-silex-href="#!page-main">
+          <label>${username}</label>
+    </div>
     <!-- Sidebar/menu -->
     <nav
       class="w3-sidebar w3-collapse"
@@ -140,7 +144,7 @@ ${style.css()}
       <!-- Header -->
       <header class="w3-container" style="padding-top: 22px">
         <h5>
-          <b> <i class="far fa-folder-open"></i> 파일업로드</b>
+          <b> <i class="far fa-folder-open"></i>${coursename} : 파일업로드</b>
         </h5>
       </header>
 
@@ -152,7 +156,7 @@ ${style.css()}
                       <div class=origin>
                        <br>
                       </div>
-                      <div class=origin>
+                      <div class=origin style="position:relative; left:5%;">
                           <form action="myrouter/addpart/${group}" method="post">
                               <input type="text" name="part" size=8 maxlength=8>
                               <input type="submit" value="파트추가">

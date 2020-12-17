@@ -124,7 +124,7 @@ app.get("/rate", (req, res) => {
           names.push(result13[0].firstname + " " + result13[0].lastname);
         }
         index = userids.length;
-        res.render("rateTemplate", { name: names, length: index,course:req.session.course });
+        res.render("rateTemplate", { name: names, length: index,course:req.session.course, username:req.session.username, coursename:req.session.coursename });
       }
     }
   });
@@ -510,7 +510,8 @@ app.get("/scoreboard", (req, res) => {
               assertiveness: assertiveness_sb,
               orator: orator_sb,
               length: length,
-              course:req.session.course
+              course:req.session.course,
+              name:req.session.username
             });
           }
         }
@@ -651,7 +652,9 @@ app.get("/prof", (req, res) => {
               assertiveness: assertiveness_sb,
               orator: orator_sb,
               length: length,
-              course:req.session.course
+              course:req.session.course,
+              name:req.session.username,
+    
             });
           }
         }
@@ -699,16 +702,24 @@ app.get("/", function (req, res) {
                               where B.id in (select A.groupid
                                              from mdl_groups_members as A
                                              where userid=${queryData.id}));`;
-  conn.query(sql, function (err, rows, fields) {
+  conn.query(sql, function (err, rows1, fields) {
     if (err) console.log("query is not excuted. select fail...\n" + err);
     else {
-      req.session.userid = loginId;
-      req.session.course = rows;
-      req.session.isLogined = true;
+      sql = `select firstname, lastname from mdl_user where id=${loginId}`
+      conn.query(sql, function(err, rows, fields){
+        const name = rows[0].firstname+rows[0].lastname
+        req.session.username = name;
+        req.session.userid = loginId;
+        //console.log(rows1)
+        req.session.course = rows1;
+        req.session.isLogined = true;
+  
+        req.session.save(function () {
+          res.render("home.ejs", { course: rows1, username : name });
+        });
 
-      req.session.save(function () {
-        res.render("home.ejs", { course: rows });
-      });
+      })
+    
     }
   });
 });
@@ -833,6 +844,8 @@ app.get("/teamPage", function (req, res) {
                 memberName: names,
                 groupName: rows[groupIndex].name,
                 course: req.session.course,
+                username:req.session.username,
+                coursename:req.session.coursename
               });
             });
           }
@@ -881,6 +894,7 @@ app.get("/workList", function (req, res) {
   conn.query(sql, function (err, rows, fiels) {
     if (err) console.log("query is not excuted. select fail...\n" + err);
     else {
+      
       rows.forEach((element) => {
         group_course.push({ courseid: element.courseid, groupid: element.id });
       });
@@ -893,6 +907,7 @@ app.get("/workList", function (req, res) {
       let dbGroupid = group_course[courseIndex].groupid;
 
       console.log("dbGroupid : " + dbGroupid);
+      console.log("dbCourseid : " + dbCourseId);
       sql = `select distinct mdl_groups.name, groupid, firstname, lastname, mdl_user.id, mdl_groups_members.to_do_list,courseid
                    from mdl_groups_members, mdl_user,mdl_groups
                    where mdl_groups_members.userid = mdl_user.id and
@@ -903,8 +918,11 @@ app.get("/workList", function (req, res) {
       const names = [];
       let group_user = [];
       let to_do_list = [];
-      conn.query(sql, function (err, rows, fields) {
-        rows.forEach((element) => {
+      conn.query(sql, function (err, rows1, fields) {
+        
+        
+        console.log(rows1)
+        rows1.forEach((element) => {
           if (element.courseid === dbCourseId) {
             names.push(element.firstname + element.lastname);
             to_do_list.push(element.to_do_list);
@@ -913,13 +931,14 @@ app.get("/workList", function (req, res) {
         });
 
         req.session.names = names;
-        let groupIndex = rows.findIndex((element) => {
+        let groupIndex = rows1.findIndex((element) => {
           return element.groupid === dbGroupid;
         });
 
-        req.session.groupName = rows[groupIndex].name;
+        req.session.groupName = rows1[groupIndex].name;
         req.session.to_do_list = to_do_list;
-        req.session.group_user = group_user;
+        req.session.group_user = group_user;  
+        
         req.session.save(function () {
           res.render("workList2.ejs", {
             memberName: names,
@@ -927,8 +946,17 @@ app.get("/workList", function (req, res) {
             comment: req.session.to_do_list,
             group_user: req.session.group_user,
             course: req.session.course,
+            username:req.session.username,
+            coursename:req.session.coursename
+          
           });
         });
+          
+
+
+        
+
+        
       });
     }
   });
@@ -951,17 +979,31 @@ app.get("/course?:id", function (req, res) {
     res.redirect("/prof");
   }
 
+  //console.log(req.session.username)
   let _url = req.url;
   let queryData = url.parse(_url, true).query;
   if (Object.keys(queryData).length > 0) {
     req.session.courseId = queryData.id;
-    req.session.save(function () {
-      res.render("course2.ejs", {
-        course: req.session.course,
-        courseId: queryData.id,
-        userid: req.session.userid,
+    let dbCourseId = req.session.course[req.session.courseId].id;
+    console.log("dbCourseid : " + dbCourseId);
+    let sql = `select fullname from mdl_course where id=${dbCourseId}`
+    conn.query(sql, function(err, rows, fields){
+
+      req.session.coursename = rows[0].fullname
+
+      req.session.save(function () {
+        res.render("course2.ejs", {
+          course: req.session.course,
+          courseId: queryData.id,
+          userid: req.session.userid,
+          username:req.session.username,
+          coursename : req.session.coursename
+        });
       });
-    });
+      
+    })
+
+    
   }
 });
 
@@ -1140,7 +1182,9 @@ app.get(
       getCourse(req.session.course),
       getFiles(group, 0),
       getFiles2("./grouprepository", 0),
-      ugroup + "?id=" + loginId
+      ugroup + "?id=" + loginId,
+      req.session.username,
+      req.session.coursename
     );
     res.writeHead(200);
     res.end(html);
